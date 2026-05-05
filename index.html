@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ContentPilotAI – AI Automation Suite</title>
+  <meta name="description" content="Generate Instagram captions, summarize emails, and auto‑reply to comments with AI. Premium tool for creators, marketers, and small businesses." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-logo">ContentPilotAI</div>
+    <div class="nav-actions">
+      <select id="langSelect" class="lang-select">
+        <option value="en" selected>English</option>
+        <option value="pt">Português</option>
+      </select>
+      
+      <!-- Show when logged out -->
+      <div id="authButtonsOut">
+        <button id="loginBtn" class="btn-secondary" data-en="Login" data-pt="Entrar">Login</button>
+      </div>
+      
+      <!-- Show when logged in -->
+      <div id="authButtonsIn" class="hidden">
+        <span id="userEmailDisplay" class="user-email"></span>
+        <button id="logoutBtn" class="btn-secondary" data-en="Logout" data-pt="Sair">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Auth Modals -->
+  <div id="authModal" class="modal hidden">
+    <div class="modal-content tool-card">
+      <span class="close-modal">&times;</span>
+      <h2 id="modalTitle">Login</h2>
+      <input type="email" id="authEmail" placeholder="Email" />
+      <input type="password" id="authPassword" placeholder="Password" />
+      <button id="submitAuthBtn" class="btn-primary" style="width: 100%; margin-top: 1rem;">Submit</button>
+      <p id="authError" class="error-text hidden"></p>
+    </div>
+  </div>
+
+  <!-- Landing Page (Public) -->
+  <div id="landingView">
+    <header class="hero">
+      <h1>ContentPilotAI</h1>
+      <p class="subtitle" data-en="AI‑powered automation for creators, marketers & small businesses." data-pt="Automação com IA para criadores, marketers e pequenos negócios.">AI‑powered automation for creators, marketers & small businesses.</p>
+      <div class="cta">
+        <button id="buyBtn" class="btn-primary" data-en="Buy Now – €19.99/mo" data-pt="Comprar – 19,99€/mês">Buy Now – €19.99/mo</button>
+      </div>
+    </header>
+
+    <section class="features">
+      <div class="feature-card">
+        <h2 data-en="Instagram Captions" data-pt="Legendas para Instagram">Instagram Captions</h2>
+        <p data-en="Generate 30 creative captions from a single theme instantly." data-pt="Gere 30 legendas criativas a partir de um tema em segundos.">Generate 30 creative captions from a single theme instantly.</p>
+      </div>
+      <div class="feature-card">
+        <h2 data-en="Email Summarizer" data-pt="Resumo de Emails">Email Summarizer</h2>
+        <p data-en="Paste long email text and receive a concise summary." data-pt="Cole o texto completo do email e receba um resumo conciso.">Paste long email text and receive a concise summary.</p>
+      </div>
+      <div class="feature-card">
+        <h2 data-en="Comment Bot" data-pt="Bot de Comentários">Comment Bot</h2>
+        <p data-en="Automatically reply to Instagram comments with AI‑generated responses." data-pt="Responda automaticamente a comentários do Instagram com respostas geradas por IA.">Automatically reply to Instagram comments with AI‑generated responses.</p>
+      </div>
+      <div class="feature-card">
+        <h2 data-en="SEO Blog Generator" data-pt="Gerador de Blog SEO">SEO Blog Generator</h2>
+        <p data-en="Enter a keyword and generate a full SEO-optimized article instantly." data-pt="Insira uma palavra-chave e gere um artigo otimizado para SEO instantaneamente.">Enter a keyword and generate a full SEO-optimized article instantly.</p>
+      </div>
+      <div class="feature-card">
+        <h2 data-en="Viral Video Script" data-pt="Guião para Vídeo Viral">Viral Video Script</h2>
+        <p data-en="Generate high-retention scripts for TikTok, Reels, or Shorts." data-pt="Gere guiões de alta retenção para TikTok, Reels ou Shorts.">Generate high-retention scripts for TikTok, Reels, or Shorts.</p>
+      </div>
+      <div class="feature-card">
+        <h2 data-en="Sales Email Writer" data-pt="Escritor de Emails de Venda">Sales Email Writer</h2>
+        <p data-en="Craft high-converting cold emails for any product and target audience." data-pt="Crie emails de venda de alta conversão para qualquer produto e público.">Craft high-converting cold emails for any product and target audience.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Dashboard View (Protected) -->
+  <div id="dashboardView" class="hidden">
+    <div class="dashboard-header">
+      <h2 data-en="Your Workspace" data-pt="O Seu Espaço de Trabalho">Your Workspace</h2>
+      <p data-en="Select a tool below to start automating." data-pt="Selecione uma ferramenta abaixo para começar a automatizar.">Select a tool below to start automating.</p>
+    </div>
+
+    <section class="tools">
+      <div class="tool-card">
+        <h2 data-en="Instagram Captions" data-pt="Legendas para Instagram">Instagram Captions</h2>
+        <p data-en="Enter a theme to generate 30 captions." data-pt="Insira um tema para gerar 30 legendas.">Enter a theme to generate 30 captions.</p>
+        
+        <div class="input-group">
+          <input type="text" id="captionTheme" placeholder="Theme (e.g., travel)" />
+          <select id="captionTone" class="tone-select">
+            <option value="casual" data-en="Casual" data-pt="Descontraído">Casual</option>
+            <option value="professional" data-en="Professional" data-pt="Profissional">Professional</option>
+            <option value="funny" data-en="Funny" data-pt="Engraçado">Funny</option>
+            <option value="inspirational" data-en="Inspirational" data-pt="Inspirador">Inspirational</option>
+          </select>
+        </div>
+
+        <button id="generateCaptionsBtn" class="btn-primary" data-en="Generate Captions" data-pt="Gerar Legendas">Generate Captions</button>
+        
+        <div class="output-container">
+          <textarea id="captionsOutput" rows="6" placeholder="Captions will appear here..." readonly></textarea>
+          <button class="btn-copy" onclick="copyText('captionsOutput')" data-en="Copy" data-pt="Copiar">Copy</button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2 data-en="Email Summarizer" data-pt="Resumo de Emails">Email Summarizer</h2>
+        <p data-en="Paste an email to get a concise summary." data-pt="Cole um email para obter um resumo conciso.">Paste an email to get a concise summary.</p>
+        <textarea id="emailText" rows="6" placeholder="Paste email text here..."></textarea>
+        <button id="summarizeEmailBtn" class="btn-primary" data-en="Summarize" data-pt="Resumir">Summarize</button>
+        <div class="output-container">
+          <textarea id="emailSummary" rows="4" placeholder="Summary will appear here..." readonly></textarea>
+          <button class="btn-copy" onclick="copyText('emailSummary')" data-en="Copy" data-pt="Copiar">Copy</button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2 data-en="Comment Bot" data-pt="Bot de Comentários">Comment Bot</h2>
+        <p data-en="Paste an Instagram comment to get an AI reply." data-pt="Cole um comentário do Instagram para obter uma resposta IA.">Paste an Instagram comment to get an AI reply.</p>
+        <textarea id="commentText" rows="4" placeholder="Paste comment here..."></textarea>
+        <button id="replyCommentBtn" class="btn-primary" data-en="Generate Reply" data-pt="Gerar Resposta">Generate Reply</button>
+        <div class="output-container">
+          <textarea id="commentReply" rows="3" placeholder="Reply will appear here..." readonly></textarea>
+          <button class="btn-copy" onclick="copyText('commentReply')" data-en="Copy" data-pt="Copiar">Copy</button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2 data-en="SEO Blog Generator" data-pt="Gerador de Blog SEO">SEO Blog Generator</h2>
+        <p data-en="Enter a keyword to generate a full SEO-optimized blog article." data-pt="Insira uma palavra-chave para gerar um artigo de blog otimizado para SEO.">Enter a keyword to generate a full SEO-optimized blog article.</p>
+        <input type="text" id="blogKeyword" placeholder="Keyword (e.g., 'Best AI Tools 2026')" />
+        <button id="generateBlogBtn" class="btn-primary" data-en="Generate Article" data-pt="Gerar Artigo">Generate Article</button>
+        <div class="output-container">
+          <textarea id="blogOutput" rows="8" placeholder="Article will appear here..." readonly></textarea>
+          <button class="btn-copy" onclick="copyText('blogOutput')" data-en="Copy" data-pt="Copiar">Copy</button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2 data-en="Viral Video Script" data-pt="Guião para Vídeo Viral">Viral Video Script</h2>
+        <p data-en="Generate a high-retention script with hooks for short-form video." data-pt="Gere um guião de alta retenção com ganchos para vídeos curtos.">Generate a high-retention script with hooks for short-form video.</p>
+        <div class="input-group">
+          <input type="text" id="scriptTopic" placeholder="Topic (e.g., '3 morning habits')" />
+          <select id="scriptPlatform" class="tone-select">
+            <option value="TikTok">TikTok</option>
+            <option value="Instagram Reels">Reels</option>
+            <option value="YouTube Shorts">Shorts</option>
+          </select>
+        </div>
+        <button id="generateScriptBtn" class="btn-primary" data-en="Generate Script" data-pt="Gerar Guião">Generate Script</button>
+        <div class="output-container">
+          <textarea id="scriptOutput" rows="6" placeholder="Script will appear here..." readonly></textarea>
+          <button class="btn-copy" onclick="copyText('scriptOutput')" data-en="Copy" data-pt="Copiar">Copy</button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2 data-en="Sales Email Writer" data-pt="Escritor de Emails de Venda">Sales Email Writer</h2>
+        <p data-en="Write a cold email designed to convert." data-pt="Escreva um email de vendas (cold email) desenhado para converter.">Write a cold email designed to convert.</p>
+        <div class="input-group">
+          <input type="text" id="productName" placeholder="Product / Service" />
+          <input type="text" id="targetAudience" placeholder="Target Audience" />
+        </div>
+        <button id="generateSalesEmailBtn" class="btn-primary" data-en="Generate Email" data-pt="Gerar Email">Generate Email</button>
+        <div class="output-container">
+          <textarea id="salesEmailOutput" rows="6" placeholder="Email will appear here..." readonly></textarea>
+          <button class="btn-copy" onclick="copyText('salesEmailOutput')" data-en="Copy" data-pt="Copiar">Copy</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2026 ContentPilotAI – All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
