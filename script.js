@@ -1,15 +1,21 @@
 // script.js for ContentPilotAI
 // -----------------------------------
 // Configuration
-// IMPORTANT: Put your REAL OpenAI API key here.
-// In a real production app, this should be hidden behind a backend (like Node.js)
-const OPENAI_API_KEY = "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";
+// IMPORTANT: The API key is now stored safely in your browser's local memory!
+// It will NEVER be sent to GitHub.
+let OPENAI_API_KEY = localStorage.getItem("dev_openai_key");
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
 // Utility: simple fetch wrapper for OpenAI Chat Completion
 async function callOpenAI(messages) {
-  if (!OPENAI_API_KEY || OPENAI_API_KEY === "YOUR_OPENAI_API_KEY_HERE") {
-    throw new Error("API Key is missing! You need to open script.js and put your OpenAI API Key in the code.");
+  // Se a chave não existir na memória do browser, pede-a através de um popup
+  if (!OPENAI_API_KEY || OPENAI_API_KEY === "null") {
+    OPENAI_API_KEY = prompt("Segurança Local: Introduza a sua nova OpenAI API Key. (Ficará guardada apenas no seu browser, sem riscos de ir para o GitHub)");
+    if (OPENAI_API_KEY) {
+      localStorage.setItem("dev_openai_key", OPENAI_API_KEY.trim());
+    } else {
+      throw new Error("Precisa de inserir a API Key para gerar conteúdo.");
+    }
   }
 
   const response = await fetch(OPENAI_API_URL, {
@@ -34,6 +40,11 @@ async function callOpenAI(messages) {
 
 // Language handling
 let currentLang = "en"; // default
+
+function getLangInstruction() {
+  return currentLang === "pt" ? "\nIMPORTANT: The output MUST be entirely in Portuguese." : "\nIMPORTANT: The output MUST be entirely in English.";
+}
+
 function updateLanguage() {
   document.querySelectorAll("[data-en]").forEach((el) => {
     const text = el.getAttribute(`data-${currentLang}`) || el.textContent;
@@ -104,7 +115,7 @@ document.getElementById("generateCaptionsBtn").addEventListener("click", async (
 
   const prompt = `Create 30 short, catchy Instagram captions about the following theme: "${theme}". 
 The tone of voice MUST BE: ${tone}. 
-Keep each caption under 100 characters. Include emojis and a few relevant hashtags.`;
+Keep each caption under 100 characters. Include emojis and a few relevant hashtags.` + getLangInstruction();
   try {
     const result = await callOpenAI([{ role: "user", content: prompt }]);
     document.getElementById("captionsOutput").value = result;
@@ -124,7 +135,7 @@ document.getElementById("summarizeEmailBtn").addEventListener("click", async () 
   const btn = document.getElementById("summarizeEmailBtn");
   const done = showLoading(btn);
 
-  const prompt = `Summarize the following email in 3-5 concise sentences, keeping the main points and tone. Email:\n\n${email}`;
+  const prompt = `Summarize the following email in 3-5 concise sentences, keeping the main points and tone. Email:\n\n${email}` + getLangInstruction();
   try {
     const result = await callOpenAI([{ role: "user", content: prompt }]);
     document.getElementById("emailSummary").value = result;
@@ -144,7 +155,7 @@ document.getElementById("replyCommentBtn").addEventListener("click", async () =>
   const btn = document.getElementById("replyCommentBtn");
   const done = showLoading(btn);
 
-  const prompt = `Write a friendly, short (max 30 words) reply to the following Instagram comment using a warm brand voice. Comment: "${comment}"`;
+  const prompt = `Write a friendly, short (max 30 words) reply to the following Instagram comment using a warm brand voice. Comment: "${comment}"` + getLangInstruction();
   try {
     const result = await callOpenAI([{ role: "user", content: prompt }]);
     document.getElementById("commentReply").value = result;
@@ -166,7 +177,7 @@ document.getElementById("generateBlogBtn").addEventListener("click", async () =>
 
   const prompt = `Write a comprehensive, SEO-optimized blog article about "${keyword}". 
 Include a catchy H1 title, an introduction, 3 main sections with H2 headers, and a conclusion.
-Make it engaging, informative, and formatted in clean markdown.`;
+Make it engaging, informative, and formatted in clean markdown.` + getLangInstruction();
   try {
     const result = await callOpenAI([{ role: "user", content: prompt }]);
     document.getElementById("blogOutput").value = result;
@@ -183,7 +194,7 @@ document.getElementById("generateScriptBtn").addEventListener("click", async () 
   const topic = document.getElementById("scriptTopic").value.trim();
   const platform = document.getElementById("scriptPlatform").value;
   if (!topic) return alert("Please enter a topic.");
-  
+
   const btn = document.getElementById("generateScriptBtn");
   const done = showLoading(btn);
 
@@ -192,7 +203,7 @@ Include:
 1. A strong 3-second hook to grab attention.
 2. Fast-paced body content (keep it concise).
 3. A clear Call to Action (CTA) at the end.
-Provide visual cues in brackets like [Zoom in] or [Point to text].`;
+Provide visual cues in brackets like [Zoom in] or [Point to text].` + getLangInstruction();
   try {
     const result = await callOpenAI([{ role: "user", content: prompt }]);
     document.getElementById("scriptOutput").value = result;
@@ -209,7 +220,7 @@ document.getElementById("generateSalesEmailBtn").addEventListener("click", async
   const product = document.getElementById("productName").value.trim();
   const audience = document.getElementById("targetAudience").value.trim();
   if (!product || !audience) return alert("Please fill in both Product and Audience fields.");
-  
+
   const btn = document.getElementById("generateSalesEmailBtn");
   const done = showLoading(btn);
 
@@ -218,7 +229,7 @@ The email should be:
 - Short and punchy (under 150 words).
 - Focus on the pain points of the audience and how the product solves them.
 - Include a catchy, non-clickbaity subject line.
-- End with a low-friction call to action (e.g. asking for a quick chat).`;
+- End with a low-friction call to action (e.g. asking for a quick chat).` + getLangInstruction();
   try {
     const result = await callOpenAI([{ role: "user", content: prompt }]);
     document.getElementById("salesEmailOutput").value = result;
@@ -233,13 +244,14 @@ The email should be:
 // --- Handle Fake Auth & Dashboard Views ---
 const authModal = document.getElementById("authModal");
 const loginBtn = document.getElementById("loginBtn");
-const registerBtn = document.getElementById("registerBtn");
+const buyBtn = document.getElementById("buyBtn"); // The one in the hero
 const closeModalBtn = document.querySelector(".close-modal");
 const submitAuthBtn = document.getElementById("submitAuthBtn");
 const modalTitle = document.getElementById("modalTitle");
 const authEmail = document.getElementById("authEmail");
 const authPassword = document.getElementById("authPassword");
 const authError = document.getElementById("authError");
+const authToggleText = document.getElementById("authToggleText");
 
 const landingView = document.getElementById("landingView");
 const dashboardView = document.getElementById("dashboardView");
@@ -248,18 +260,47 @@ const authButtonsIn = document.getElementById("authButtonsIn");
 const userEmailDisplay = document.getElementById("userEmailDisplay");
 const logoutBtn = document.getElementById("logoutBtn");
 
+const lockedPlanView = document.getElementById("lockedPlanView");
+const toolsSection = document.getElementById("toolsSection");
+const dashboardBuyBtn = document.getElementById("dashboardBuyBtn");
+
 let isLoginMode = true;
+
+// Helper to decode JWT from Google Sign-In
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
 
 // Check existing session
 function checkAuth() {
-  const user = localStorage.getItem("contentpilot_user");
-  if (user) {
+  const userStr = localStorage.getItem("contentpilot_current_user");
+
+  if (userStr) {
+    const user = JSON.parse(userStr);
+
     // Logged in
     landingView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
     authButtonsOut.classList.add("hidden");
     authButtonsIn.classList.remove("hidden");
-    userEmailDisplay.textContent = user;
+    userEmailDisplay.textContent = user.email;
+
+    if (user.paid) {
+      lockedPlanView.classList.add("hidden");
+      toolsSection.classList.remove("hidden");
+    } else {
+      lockedPlanView.classList.remove("hidden");
+      toolsSection.classList.add("hidden");
+    }
   } else {
     // Logged out
     landingView.classList.remove("hidden");
@@ -269,11 +310,40 @@ function checkAuth() {
   }
 }
 
+// Simulated DB logic
+function getUser(email) {
+  const users = JSON.parse(localStorage.getItem("contentpilot_users") || "{}");
+  return users[email];
+}
+
+function saveUser(user) {
+  const users = JSON.parse(localStorage.getItem("contentpilot_users") || "{}");
+  users[user.email] = user;
+  localStorage.setItem("contentpilot_users", JSON.stringify(users));
+  localStorage.setItem("contentpilot_current_user", JSON.stringify(user));
+}
+
 // Open modal
 function openModal(mode) {
   isLoginMode = mode === "login";
   modalTitle.textContent = isLoginMode ? "Login" : "Register";
   submitAuthBtn.textContent = isLoginMode ? "Login" : "Create Account";
+
+  if (isLoginMode) {
+    authToggleText.innerHTML = currentLang === "en" ?
+      `Don't have an account? <span id="toggleAuthMode" style="color: var(--primary); cursor: pointer; font-weight: bold;">Register</span>` :
+      `Ainda não tem conta? <span id="toggleAuthMode" style="color: var(--primary); cursor: pointer; font-weight: bold;">Registar</span>`;
+  } else {
+    authToggleText.innerHTML = currentLang === "en" ?
+      `Already have an account? <span id="toggleAuthMode" style="color: var(--primary); cursor: pointer; font-weight: bold;">Login</span>` :
+      `Já tem conta? <span id="toggleAuthMode" style="color: var(--primary); cursor: pointer; font-weight: bold;">Entrar</span>`;
+  }
+
+  // Re-attach listener
+  document.getElementById("toggleAuthMode").addEventListener("click", () => {
+    openModal(isLoginMode ? "register" : "login");
+  });
+
   authError.classList.add("hidden");
   authEmail.value = "";
   authPassword.value = "";
@@ -282,14 +352,40 @@ function openModal(mode) {
 
 if (loginBtn) loginBtn.addEventListener("click", () => openModal("login"));
 
+// Buy button on landing page forces Register first
+if (buyBtn) {
+  // We overwrite the earlier event listener by replacing the node or just removing the old one.
+  // Wait, in line 64 the previous code was doing window.location.href = BUY_URL.
+  // We should make sure that doesn't trigger. 
+  // We'll replace the element completely to strip previous event listeners.
+  const newBuyBtn = buyBtn.cloneNode(true);
+  buyBtn.parentNode.replaceChild(newBuyBtn, buyBtn);
+  newBuyBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal("register");
+  });
+}
+
+if (dashboardBuyBtn) dashboardBuyBtn.addEventListener("click", () => {
+  // Redirect to Stripe
+  // The success logic (#payment_success) must be configured in Stripe's "After Payment" settings
+  window.location.href = BUY_URL;
+});
+
 if (closeModalBtn) closeModalBtn.addEventListener("click", () => {
   authModal.classList.add("hidden");
 });
 
-// Check if Stripe redirected here to register
-if (window.location.hash === "#register") {
-  openModal("register");
-  history.replaceState(null, null, ' '); // Clean URL
+// Check if returned from Stripe successfully
+if (window.location.hash === "#payment_success") {
+  const userStr = localStorage.getItem("contentpilot_current_user");
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    user.paid = true;
+    saveUser(user);
+  }
+  history.replaceState(null, null, window.location.pathname); // Clean URL
+  checkAuth();
 }
 
 // Handle Login/Register Submit
@@ -304,33 +400,53 @@ if (submitAuthBtn) submitAuthBtn.addEventListener("click", () => {
   }
 
   if (isLoginMode) {
-    // LOGIN LOGIC
-    // Check if it's the admin or a previously registered user in this browser
-    const savedUser = JSON.parse(localStorage.getItem("registered_account"));
-    
-    const isAdmin = email === "admin" && pass === "J7$kPz8!nQwT4X@b2";
-    const isSavedUser = savedUser && email === savedUser.email && pass === savedUser.pass;
-
-    if (isAdmin || isSavedUser) {
-      localStorage.setItem("contentpilot_user", email);
+    const user = getUser(email);
+    if (user && user.pass === pass) {
+      localStorage.setItem("contentpilot_current_user", JSON.stringify(user));
       authModal.classList.add("hidden");
       checkAuth();
     } else {
-      authError.textContent = "Invalid email or password. You must register first.";
+      authError.textContent = "Invalid email or password.";
       authError.classList.remove("hidden");
     }
   } else {
-    // REGISTER LOGIC (after paying)
-    localStorage.setItem("registered_account", JSON.stringify({ email, pass }));
-    localStorage.setItem("contentpilot_user", email);
+    // Register
+    if (getUser(email)) {
+      authError.textContent = "Email already registered. Please login.";
+      authError.classList.remove("hidden");
+      return;
+    }
+    const newUser = { email, pass, paid: false };
+    saveUser(newUser);
     authModal.classList.add("hidden");
     checkAuth();
   }
 });
 
+// Global callback for Google Login
+window.handleGoogleLogin = function (response) {
+  const data = parseJwt(response.credential);
+  if (data && data.email) {
+    let user = getUser(data.email);
+    if (!user) {
+      // Register with Google
+      user = { email: data.email, pass: "GOOGLE_SSO", paid: false };
+      saveUser(user);
+    } else {
+      // Login with Google
+      localStorage.setItem("contentpilot_current_user", JSON.stringify(user));
+    }
+    authModal.classList.add("hidden");
+    checkAuth();
+  } else {
+    authError.textContent = "Google Sign-In failed.";
+    authError.classList.remove("hidden");
+  }
+};
+
 // Logout
 if (logoutBtn) logoutBtn.addEventListener("click", () => {
-  localStorage.removeItem("contentpilot_user");
+  localStorage.removeItem("contentpilot_current_user");
   checkAuth();
 });
 
